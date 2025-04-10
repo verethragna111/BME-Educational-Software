@@ -1,4 +1,15 @@
-function demo()
+
+currentDirectory = pwd;
+
+subDirList = config_demo();
+
+for it=1:length(subDirList)
+    addpath(fullfile(currentDirectory,subDirList{it}));
+end
+
+demo_run()
+
+function demo_run()
     cols = [30,110,190,270,350];
 
     a = figure('Color',[0.8 0.8 0.8], ...

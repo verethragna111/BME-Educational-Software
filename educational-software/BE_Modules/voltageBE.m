@@ -28,16 +28,18 @@ function voltageBE(action)
         V_clamp0=V_clamp1;
     end
     
-    EditHandle4=findobj(gcbf,'Tag','EditText4');
-    ymin=str2num(get(EditHandle4,'String'));
-    EditHandle5=findobj(gcbf,'Tag','EditText5');
-    ymax=str2num(get(EditHandle5,'String'));
-    EditHandle6=findobj(gcbf,'Tag','EditText6'); % LAB_A_Task_3
-    Nae=str2num(get(EditHandle6,'String'));
+    y_min_handle=findobj(gcbf,'Tag','y_min');
+    ymin=str2double(get(y_min_handle,'String'));
+    y_max_handle=findobj(gcbf,'Tag','y_max');
+    ymax=str2num(get(y_max_handle,'String'));
+
+    na_out_handle=findobj(gcbf,'Tag','na_out'); % LAB_A_Task_3
+    Nae=str2num(get(na_out_handle,'String'));
+
     E_NA=25*log(Nae/45.0)+60;
-    EditHandle7=findobj(gcbf,'Tag','EditText7');
+    eNa_handle=findobj(gcbf,'Tag','eNa');
     e_na_str=num2str(E_NA);
-    set(EditHandle7,'String',e_na_str);
+    set(eNa_handle,'String',e_na_str);
     
     PopUpHandle1=findobj(gcbf,'Tag','PopUp1');
     plotstrcell=get(PopUpHandle1,'String');
@@ -77,28 +79,7 @@ function voltageBE(action)
     E_K = -8.0;         % mV
     E_LEAK = 10.613;	% mV  % Leakage Voltage will not be covered in 445/545.
     
-    %++BME445/545 LAB_A_CodingTask_IV - Make adjustments here using your new
-    % code from 'Apply TTX' in PopUp3. 
-    % More specifically, when PopUp3 is set to 'Apply TTX', you should block
-    % G_K by setting this to zero;
     
-    % YOUR EXAMPLE CODE:
-    % if (_your_condition_here_)
-    %     G_K = 0.0;  %mS/cm^2
-    % end
-    %--2021.02.10
-    
-    
-    %++BME 445/545 *** For LAB_B; Commented out for now 2022.01.24 *** 
-    %C_M = 1.0;	% uF/cm^2
-    %INJECT_LIST = [istim 3.0];
-    %INJECT_LIST2 = [3.0 3.0];
-    % 
-    %I = INJECT_LIST(ival)*(t>5 & t<=30);
-    %I1 = INJECT_LIST(ival)*(t>tstart & t<=tstart+tdur | t>tstart+tdur+tsepar & t<=tstart+tsepar+tdur+tdur);
-    %I2 = INJECT_LIST2(ival)*(t>8 & t<=10 | t>18 & t<=20);
-    %I=I1;
-    %--For 2021.03
     
     %%%%%%%%%%%%%%%%%%%%%%%
     % MAIN SIMULATION LOOP
