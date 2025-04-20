@@ -11,13 +11,13 @@ function voltageBE(action)
     
     % Variable Time delay 
     % is the initial delay before the voltage of the resting stage changes 
-    t_delay_handle=findobj(gcbf,'Tag','t_delay');
-    tdel1=str2num(get(t_delay_handle,'String'));
+    t_delay0_handle=findobj(gcbf,'Tag','t_delay0');
+    tdel=str2num(get(t_delay0_handle,'String'));
 
     % Variable time end
     % The delay time at which the clamp voltage is switched
-    t_delay2_handle=findobj(gcbf,'Tag','t_delay2');
-    tend=str2num(get(t_delay2_handle,'String'));
+    t_delay1_handle=findobj(gcbf,'Tag','t_delay1');
+    tend=str2num(get(t_delay1_handle,'String'));
     
     if strcmp(use_modified,'on')
         V_clamp0=str2num(get(EditHandle1a,'String'));
