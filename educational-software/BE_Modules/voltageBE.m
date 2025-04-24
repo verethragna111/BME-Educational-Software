@@ -1,59 +1,88 @@
 function voltageBE(action)
     
     
-    % Variable Clamp Voltage taken from the GUI 
-    clampVoltage_handle=findobj(gcbf,'Tag','clampVoltage');
-    V_clamp1=str2num(get(clampVoltage_handle,'String'));
 
+    %% ----------------------------
+    % 1. Clamp Voltage Variables
+    %% ----------------------------
 
-    EditHandle1a=findobj(gcbf,'Tag','EditText1a');
+    % Main voltage clamp value (V_clamp1)
+    clampVoltage_handle = findobj(gcbf,'Tag','clampVoltage');
+    V_clamp1 = str2num(get(clampVoltage_handle,'String'));
+
+    %% ----------------------------
+    % 2. Plot Range Settings
+    %% ----------------------------
+
+    % Minimum Y-axis value for plots
+    y_min_handle = findobj(gcbf,'Tag','y_min');
+    ymin = str2double(get(y_min_handle,'String'));
+
+    % Maximum Y-axis value for plots
+    y_max_handle = findobj(gcbf,'Tag','y_max');
+    ymax = str2num(get(y_max_handle,'String'));
+
+    %% ----------------------------
+    % 3. Potential Variables
+    %% ----------------------------
+
+    % External sodium concentration
+    na_out_handle = findobj(gcbf,'Tag','na_out');
+    Nae = str2num(get(na_out_handle,'String'));
+
+    % Calculate and set Nernst potential for Na+
+    E_NA = 25 * log(Nae / 45.0) + 60;
+    eNa_handle = findobj(gcbf,'Tag','eNa');
+    e_na_str = num2str(E_NA);
+    set(eNa_handle, 'String', e_na_str);
+
+    %% ----------------------------
+    % 4. GUI Options (Display & Plot Flags)
+    %% ----------------------------
+
+    % Plot hold option (on/off)
+    PopUpHandle1 = findobj(gcbf,'Tag','PopUp1');
+    plotstrcell = get(PopUpHandle1,'String');
+    plotflag = get(PopUpHandle1,'Value');
+
+    % Display mode (e.g., membrane current, g_K, g_Na)
+    PopUpHandle2 = findobj(gcbf,'Tag','PopUp2');
+    displaycell = get(PopUpHandle2,'String');
+    displayflag = get(PopUpHandle2,'Value');
+
+    % Ion channel blocker option (e.g., no blocker, block K+, block Na+)
+    PopUpHandle3 = findobj(gcbf,'Tag','PopUp3');
+    ionchannelblockercell = get(PopUpHandle3,'String');
+    ionflag = get(PopUpHandle3,'Value');
+
+    %% ----------------------------
+    % 5. Time Variables
+    %% ----------------------------
+
+    % Initial delay before voltage clamp starts (t_delay0)
+    t_delay0_handle = findobj(gcbf,'Tag','t_delay0');
+    tdel1 = str2num(get(t_delay0_handle,'String'));
+
+    % Final delay / switch time (t_delay1)
+    t_delay1_handle = findobj(gcbf,'Tag','t_delay1');
+    tend = str2num(get(t_delay1_handle,'String'));
+
+    % Optional delay and clamp value if modification is visible
+    EditHandle1a = findobj(gcbf,'Tag','EditText1a');
     use_modified = get(EditHandle1a,'Visible');
-    
-    % Variable Time delay 
-    % is the initial delay before the voltage of the resting stage changes 
-    t_delay0_handle=findobj(gcbf,'Tag','t_delay0');
-    tdel=str2num(get(t_delay0_handle,'String'));
 
-    % Variable time end
-    % The delay time at which the clamp voltage is switched
-    t_delay1_handle=findobj(gcbf,'Tag','t_delay1');
-    tend=str2num(get(t_delay1_handle,'String'));
-    
-    if strcmp(use_modified,'on')
-        V_clamp0=str2num(get(EditHandle1a,'String'));
-        EditHandle2a=findobj(gcbf,'Tag','EditText2a');
-        tdel2=str2num(get(EditHandle2a,'String'));
-    else 
+    if strcmp(use_modified, 'on')
+        V_clamp0 = str2num(get(EditHandle1a,'String'));
+        EditHandle2a = findobj(gcbf,'Tag','EditText2a');
+        tdel2 = str2num(get(EditHandle2a,'String'));
+    else
         tdel2 = tend;
-        V_clamp0=V_clamp1;
+        V_clamp0 = V_clamp1;
     end
-    
-    y_min_handle=findobj(gcbf,'Tag','y_min');
-    ymin=str2double(get(y_min_handle,'String'));
-    y_max_handle=findobj(gcbf,'Tag','y_max');
-    ymax=str2num(get(y_max_handle,'String'));
-
-    na_out_handle=findobj(gcbf,'Tag','na_out'); % LAB_A_Task_3
-    Nae=str2num(get(na_out_handle,'String'));
-
-    E_NA=25*log(Nae/45.0)+60;
-    eNa_handle=findobj(gcbf,'Tag','eNa');
-    e_na_str=num2str(E_NA);
-    set(eNa_handle,'String',e_na_str);
-    
-    PopUpHandle1=findobj(gcbf,'Tag','PopUp1');
-    plotstrcell=get(PopUpHandle1,'String');
-    plotflag=get(PopUpHandle1,'Value');
-    PopUpHandle2=findobj(gcbf,'Tag','PopUp2');
-    displaycell=get(PopUpHandle2,'String');
-    displayflag=get(PopUpHandle2,'Value');
-    
-    PopUpHandle3=findobj(gcbf,'Tag','PopUp3');
-    ionchannelblockercell=get(PopUpHandle3,'String');
-    ionflag=get(PopUpHandle3,'Value');
+    %% ----------------------------
     
     switch(action)
-    case 'run',
+    case 'run'
     
     %%----------------------------------------------------------------------
     % BME445/545 - Quantitative Neural Function
@@ -84,7 +113,7 @@ function voltageBE(action)
     %%%%%%%%%%%%%%%%%%%%%%%
     % MAIN SIMULATION LOOP
     %%%%%%%%%%%%%%%%%%%%%%%
-    % This part of code is covered in Lectures 4-6
+    
     clear v  m  h  n			% clear old varibles
     v = V_REST;					% initial membrane voltage
     m = alpha_m(v)/(alpha_m(v)+beta_m(v));	% initial (steady-state) m
@@ -129,6 +158,7 @@ function voltageBE(action)
         %Im(i) = gNa*(V-ENA) + gK*(V-EK)+GLEAK*(V-ELEAK)+(v(i)-v(i-1))/DT;
         %Im(i) = gNa*(V-ENA) + gK*(V-EK)+(v(i)-v(i-1))/DT;
         %--2022.01.24
+
         INa(i)= gNa*(V-E_NA);
         IK(i) = gK*(V-E_K);
         g_Na(i)= gNa;
@@ -172,51 +202,7 @@ function voltageBE(action)
     meta.E_NA = E_NA;
     meta.V_clamp = V_clamp1;
     
-    % Task_1c. - Saving your Experiment - 
-    % The "eval( --> sprintf( )" below is a powerful way to add flexibile
-    % string manipulation to your code and any outputs.   
-    %   In the ORIGINAL CODE form, each experiment will overwrite your results.
-    %   How will you index different experiments without overwriting (or 
-    %   not losing) your repeated voltage clamp experiments? 
-    % ORIGINAL CODE:  
     save im Im  % be sure to eventually comment this out.
     
-    % ADD MODIFIED CODE HERE :  
-    % save ...
-    % Syntax Hint: >> eval(sprintf('save im_%s Im meta', ['JP']));
-    %--2022.01.24
     
     end
-    
-    
-    % Support functions are provided below:
-    %*********************
-    function rate = alpha_h(v)
-        rate = zeros(size(v));
-        rate = 0.07*exp(-v/20.0);
-        
-    %***********************
-    function rate = beta_h(v)
-        rate = zeros(size(v));
-        rate =  1.0 ./ (exp((-v+30.0)/10.0) + 1.0);
-        
-    %***********************
-    function rate = alpha_m(v)
-        rate = zeros(size(v));		% DEFAULT RATE TO ZERO
-        rate = 0.1.*(25.-v)./(exp((25.-v)./10)-1);
-    
-    %**********************
-    function rate =  beta_m(v)
-        rate = zeros(size(v));
-        rate = 4.0*exp(-v/18.0);
-    
-    %***********************
-    function rate = alpha_n(v)
-        rate = zeros(size(v));
-        rate = 0.01.*(10.-v)./(exp((10.-v)/10)-1);
-      
-    %**********************
-    function rate = beta_n(v)
-        rate = zeros(size(v));
-        rate = 0.125*exp(-v/80.0);
-    

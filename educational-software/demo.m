@@ -9,6 +9,11 @@ end
 
 demo_run()
 
+%global data used;
+
+%data = [];
+%used = -1;
+
 function demo_run()
     cols = [30,110,190,270,350];
 
