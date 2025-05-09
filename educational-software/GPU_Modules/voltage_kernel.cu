@@ -5,8 +5,8 @@
 
 // Define device helper functions for alpha and beta rates
 __device__ double alpha_m_d(double V) {
-    if (fabs(25.0 - V) < 1e-9) { // Handle V close to 25.0 mV
-        return 1.0; // Limit as V approaches 25.0
+    if (fabs(25.0 - V) < 1e-9) { 
+        return 1.0; 
     }
     return 0.1 * (25.0 - V) / (exp((25.0 - V) / 10.0) - 1.0);
 }
@@ -162,8 +162,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double tend = mxGetScalar(prhs[3]);
     bool use_modified = (mxGetScalar(prhs[4]) != 0);
 
-    double V_clamp0 = V_clamp1; // Default if not using modified
-    double tdel2 = tend;       // Default if not using modified
+    double V_clamp0 = V_clamp1; 
+    double tdel2 = tend;    
 
     if (use_modified) {
         if (nrhs < 7) {
@@ -176,12 +176,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // --- Constants and Initial Calculations ---
     const double DT = 0.05;
     const double V_REST = 0.0;
-    const double G_NA = 120.0;	// mS/cm^2
-    const double G_K = 25.0;	    // mS/cm^2
-    // const double G_LEAK = 0.3;	// mS/cm^2 (Not used in the provided loop calculation)
+    const double G_NA = 120.0;	
+    const double G_K = 25.0;	    
 
-    const double E_K = -8.0;         // mV
-    // const double E_LEAK = 10.613;	// mV (Not used in the provided loop calculation)
+    const double E_K = -8.0;    
 
     // Calculate E_NA on the host
     double E_NA = 25.0 * log(Nae / 45.0) + 60.0;
