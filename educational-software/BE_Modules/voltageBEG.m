@@ -29,34 +29,27 @@ function voltageBEG(action)
      na_out_handle = findobj(gcbf,'Tag','na_out');
      Nae = str2num(get(na_out_handle,'String'));
 
-     % Note: E_NA is now calculated and returned by the CUDA MEX function.
-     % We will update the GUI handle string after the MEX call.
-     % E_NA = 25 * log(Nae / 45.0) + 60; % Original calculation moved to MEX
-     % Calculate and set Nernst potential for Na+
-        E_NA = 25 * log(Nae / 45.0) + 60;
-        eNa_handle = findobj(gcbf,'Tag','eNa');
-        e_na_str = num2str(E_NA);
-        set(eNa_handle, 'String', e_na_str);
+     E_NA = 25 * log(Nae / 45.0) + 60;
+     eNa_handle = findobj(gcbf,'Tag','eNa');
+     e_na_str = num2str(E_NA);
+     set(eNa_handle, 'String', e_na_str);
 
      %% ----------------------------
      % 4. GUI Options (Display & Plot Flags)
      %% ----------------------------
 
-     % Plot hold option (on/off)
      PopUpHandle1 = findobj(gcbf,'Tag','PopUp1');
      plotstrcell = get(PopUpHandle1,'String');
      plotflag = get(PopUpHandle1,'Value');
 
-     % Display mode (e.g., membrane current, g_K, g_Na)
+
      PopUpHandle2 = findobj(gcbf,'Tag','PopUp2');
      displaycell = get(PopUpHandle2,'String');
      displayflag = get(PopUpHandle2,'Value');
 
-     % Ion channel blocker option (e.g., no blocker, block K+, block Na+)
      PopUpHandle3 = findobj(gcbf,'Tag','PopUp3');
      ionchannelblockercell = get(PopUpHandle3,'String');
-     ionflag = get(PopUpHandle3,'Value'); % Note: ionflag is not used in the core simulation logic here,
-                                         % but is kept as per the original structure.
+     ionflag = get(PopUpHandle3,'Value'); 
 
      %% ----------------------------
      % 5. Time Variables
@@ -101,15 +94,14 @@ function voltageBEG(action)
      %%%%%%%%%%%%%%%%%%%%%%%
      DT = 0.05;
      T_MAX = tend;
-     % t vector is needed for plotting, recreate after determining T_MAX
      t = 0:DT:T_MAX;
 
 
      % Constants used by the CUDA kernel (hardcoded in .cu file or can be passed)
      V_REST = 0.0;
-     G_NA = 120.0;	% mS/cm^2
-     G_K = 25.0;	    % mS/cm^2
-     E_K = -8.0;         % mV
+     G_NA = 120.0;	
+     G_K = 25.0;	    
+     E_K = -8.0;         
 
      
     %%%%%%%%%%%%%%%%%%%%%%%
@@ -156,11 +148,6 @@ function voltageBEG(action)
         end
         
         Im(i) = (gNa*(V-E_NA) + gK*(V-E_K));
-        %++BME445/545 *** USEFUL CODE COMMENTED OUT (Used in LAB_B)
-        %Im(i) = (gNa*(V-ENA) + gK*(V-EK) + GLEAK*(V-ELEAK));
-        %Im(i) = gNa*(V-ENA) + gK*(V-EK)+GLEAK*(V-ELEAK)+(v(i)-v(i-1))/DT;
-        %Im(i) = gNa*(V-ENA) + gK*(V-EK)+(v(i)-v(i-1))/DT;
-        %--2022.01.24
 
         INa(i)= gNa*(V-E_NA);
         IK(i) = gK*(V-E_K);
@@ -194,8 +181,6 @@ function voltageBEG(action)
          eNa_handle = findobj(gcbf,'Tag','eNa');
          set(eNa_handle, 'String', num2str(E_NA_mex));
 
-         % Use the E_NA value returned by the MEX function for metadata and potential further use
-         E_NA = E_NA_mex;
      cuda_time = toc;
      fprintf('Simulation Time using CUDA %.4f \n', cuda_time);
 
@@ -228,14 +213,6 @@ function voltageBEG(action)
              xlabel('time (mSec)');
              ylabel('g_K ');
 
-         % Add plotting for INa, IK, g_Na if displayflag options 3, 4, 5 are added later
-         % elseif displayflag == 3
-         %     plot(t,INa,'r-');
-         %     axis([0 T_MAX ymin ymax]);
-         %     title('Sodium Current vs Time Plot');
-         %     xlabel('time (mSec)');
-         %     ylabel('INa (mA/sqcm)');
-         % ... and so on
          end
      else
          % Handle case where simulation failed and arrays are empty
@@ -244,40 +221,6 @@ function voltageBEG(action)
          ylabel('');
          cla; % Clear the current axes
      end
-
-
-     %++BME445/545 LAB_A_CodingTask_I - Programming the Output Metadata -
-     % metadata are parameters associated with this experiment that can be
-     % programmatically saved into variable 'meta' as shown below:
-
-     % Task_1b. - Create your metadata variable, 'meta' here -
-     meta = [];
-     % Ensure Im is not empty before assigning to meta
-     if ~isempty(Im)
-         meta.Im = Im;
-         meta.E_NA = E_NA; % Use the E_NA value returned by the MEX
-         meta.V_clamp = V_clamp1;
-         % You might want to add other parameters to meta as needed
-         % meta.INa = INa;
-         % meta.IK = IK;
-         % meta.g_Na = g_Na;
-         % meta.g_K = g_K;
-         % meta.t = t;
-         % meta.DT = DT;
-         % meta.T_MAX = T_MAX;
-         % meta.tdel1 = tdel1;
-         % meta.tend = tend;
-         % meta.use_modified = use_modified_flag;
-         % if use_modified_flag
-         %     meta.V_clamp0 = V_clamp0;
-         %     meta.tdel2 = tdel2;
-         % end
-     end
-
-
-     % save im Im  % be sure to eventually comment this out.
-     % You might save the entire 'meta' structure instead if needed
-     % save simulation_results meta
 
 
      end % End of case 'run'
